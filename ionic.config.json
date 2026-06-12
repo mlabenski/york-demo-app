@@ -1,6 +1,6 @@
 {
   "name": "york-app",
-  "app_id": "",
+  "integrations": {},
   "type": "ionic-angular",
-  "integrations": {}
+  "pro_id": "894f4e09"
 }

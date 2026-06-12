@@ -1,6 +1,7 @@
 import { Component,  ViewChild, ElementRef } from '@angular/core';
-import { NavController, ToastController } from 'ionic-angular';
-import { MapGenieProvider } from '../../providers/map-genie/map-genie';
+import { NavController, ToastController, ModalController } from 'ionic-angular';
+import { MapProvider } from '../../providers/map/map';
+import { ServicesPage } from '../services/services';
 
 declare var google;
 
@@ -11,14 +12,20 @@ declare var google;
 export class HomePage {
   @ViewChild('map') mapElement: ElementRef;
   map: any;
-  constructor(public toast: ToastController, public mapGenie: MapGenieProvider, public navCtrl: NavController) { }
-    
-    ionViewWillLoad(){ 
+  latLng: any;
+  data: any;
+
+  constructor(public modal: ModalController, public toast: ToastController, public mapCtrl: MapProvider, public navCtrl: NavController) { 
+    this.latLng = { lat: 39.9623206, lng : -76.7291338};
+  }
+
+  ionViewWillLoad(){ 
       this.initMap();  
-      this.mapGenie.AddSections(this.map); 
-     // google.maps.event.addListener(this.mapGenie.red_zone, 'click', this.mapGenie.SectionContent('services for red section', this.map));
-     // google.maps.event.addListener(this.mapGenie.yellow_zone,'click', this.mapGenie.SectionContent('services for yellow section', this.map));
-     }
+      this.mapCtrl.AddSections(this.map); 
+      google.maps.event.addListener(this.mapCtrl.red_zone, 'click',  (event) =>  this.presentModal({section_name: 'Zone 1', colour: 'danger'}));  
+  google.maps.event.addListener(this.mapCtrl.yellow_zone, 'click',  (event) => this.presentModal({section_name: 'Zone 2', colour: 'amber'}));  
+google.maps.event.addListener(this.mapCtrl.green_zone, 'click', (event) => this.presentModal({section_name: 'Zone 3', colour: 'secondary'}));
+   }
   
 
   initMap() {
@@ -135,20 +142,13 @@ export class HomePage {
       ],
       {name: 'Styled Map'});
 
-    let latLng = { lat: 39.9666628 , lng: -76.749997};
-     this.map = new google.maps.Map(this.mapElement.nativeElement, {
-      center: latLng,
-      zoom: 15
-    });
+    this.map = new google.maps.Map(this.mapElement.nativeElement, {  center: this.latLng,  zoom: 15  });
     this.map.mapTypes.set('styled_map', styledMapType);
     this.map.setMapTypeId('styled_map');
   } 
 
- listR(){ this.mapGenie.listPlaces(this.map,'restaurant'); }
-
- listS(){ this.mapGenie.listPlaces(this.map,'stores'); }
-
- listB(){ this.mapGenie.listPlaces(this.map,'bars'); }
-
+  
+  presentModal(data){ this.modal.create(ServicesPage, data).present();  }
 
 }
+
